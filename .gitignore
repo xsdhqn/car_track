@@ -1,0 +1,21 @@
+# Keil build outputs
+/Objects/
+/Listings/
+*.o
+*.d
+*.crf
+*.axf
+*.lst
+*.lnp
+*.htm
+*.map
+*.plg
+*.dep
+*.iex
+*.tra
+*.bak
+
+# Keil project metadata (user-specific)
+*.uvguix.*
+JLinkLog.txt
+JLink*
