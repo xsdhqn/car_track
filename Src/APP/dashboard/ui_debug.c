@@ -770,6 +770,25 @@ static void ui_debug_serial_print(void)
     trace_control_get_lost_info(&lost_cnt, &recovery_cnt);
     ultrasonic_get_raw(&echo_us, &us_ok, &us_listen);
 
+    /* ── 编码器 PPR 校准专用输出 ──
+     * 当处于 ENCODER 页面时，额外输出一行编码器专用数据，
+     * 方便通过串口助手查看、录波、计算 PPR。
+     *
+     * 使用方法：
+     *   1. 切换到 DEBUG → ENCODER 页面
+     *   2. 手动缓慢转车轮一整圈
+     *   3. 观察串口输出 "PPR_CAL: L=xxxx R=xxxx" 行
+     *   4. 转一圈前后 L/R 的差值 = 单轮 PPR
+     *   5. 多测几次取平均，填入 VEHICLE_ENCODER_PPR
+     */
+    if (s_page == UI_DEBUG_ENCODER)
+    {
+        printf("[ENC_CAL] L=%+6ld R=%+6ld  SPD=%2d cm/s  DIST=%4lu cm\r\n",
+               enc_left, enc_right,
+               vehicle_get_speed_cm_s(),
+               (unsigned long)vehicle_get_distance_cm());
+    }
+
     {
         float dist = obstacle_guard_get_distance();
         const char *dist_str;
