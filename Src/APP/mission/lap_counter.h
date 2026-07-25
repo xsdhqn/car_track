@@ -9,7 +9,10 @@ void lap_counter_init(void);
 /* 周期性更新 A 点检测状态 */
 void lap_counter_update(void);
 
-/* 是否刚刚经过 A 点（本次调用周期内为真，仅一次） */
+/* 是否刚刚经过黑点（任意黑点，本次调用周期内为真，仅一次） */
+u8 lap_counter_just_passed_cross(void);
+
+/* 是否刚刚经过 A 点（第 4 个黑点，本次调用周期内为真，仅一次） */
 u8 lap_counter_just_passed_a(void);
 
 /* 获取当前已跑圈数 */

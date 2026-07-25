@@ -120,8 +120,14 @@ u8 mic_scan(void)
         case MIC_ST_IDLE:
             if (level)  /* ADC 低于阈值(电压拉低)：有声音 */
             {
+#if MIC_DEBOUNCE_CNT == 0
+                /* 零消抖：直接触发，不经过消抖状态 */
+                s_state = MIC_ST_WAIT_SECOND;
+                s_last_trigger_tick = (u16)(app_get_tick() & 0xFFFF);
+#else
                 s_state = MIC_ST_DEBOUNCE_1;
                 s_debounce_cnt = 1;
+#endif
             }
             break;
 
@@ -129,7 +135,9 @@ u8 mic_scan(void)
             if (level)  /* 低电平持续，继续消抖计数 */
             {
                 s_debounce_cnt++;
+#if MIC_DEBOUNCE_CNT > 0
                 if (s_debounce_cnt >= MIC_DEBOUNCE_CNT)
+#endif
                 {
                     /* 第一次信号消抖完成 */
 #if MIC_DOUBLE_TAP_MS > 0
@@ -183,7 +191,9 @@ u8 mic_scan(void)
             if (level)  /* 第二次信号持续，继续消抖 */
             {
                 s_debounce_cnt++;
+#if MIC_DEBOUNCE_CNT > 0
                 if (s_debounce_cnt >= MIC_DEBOUNCE_CNT)
+#endif
                 {
                     /* 第二次信号消抖完成，判定为连续拍手 */
                     s_state = MIC_ST_IDLE;

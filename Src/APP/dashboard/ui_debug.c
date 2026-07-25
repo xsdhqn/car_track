@@ -371,7 +371,7 @@ static void ui_debug_draw_mic(void)
     }
 
     /* 第4行：消抖参数 + ADC 阈值 */
-    sprintf(buf, "DEB:2 THR:%d", MIC_ADC_THRESHOLD);
+    sprintf(buf, "DEB:1 THR:%d", MIC_ADC_THRESHOLD);
     oled_spi_show_string(0, 4, (u8 *)buf, 8);
 
     /* 第5-6行：操作提示 */

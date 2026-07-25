@@ -159,11 +159,8 @@ void fsm_update(void)
 
         case FSM_STATE_RUNNING:
         {
-            /* 仅在规则模式更新计圈，正常模式自由循迹不跑圈 */
-            if (ui_get_mode() == UI_MODE_RULE)
-            {
-                lap_counter_update();
-            }
+            /* 计圈：两种模式均启用，正常模式自由循迹也计圈 */
+            lap_counter_update();
 
             /* 运行总时长保护：超过 99s 强制结束 */
             fsm_update_run_timer();
@@ -172,11 +169,14 @@ void fsm_update(void)
                 break;
             }
 
-            /* 处理 A 点过线 */
-            if (lap_counter_just_passed_a())
+            /* 处理黑点过线：每个黑点声光提示，第 4 个为 A 点计一圈 */
+            if (lap_counter_just_passed_cross())
             {
                 alarm_control_event(ALARM_EVENT_A_POINT);
+            }
 
+            if (lap_counter_just_passed_a())
+            {
                 if (lap_counter_is_finished())
                 {
                     fsm_enter_finished();

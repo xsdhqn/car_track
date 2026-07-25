@@ -64,27 +64,22 @@ void app_update(void)
     obstacle_guard_update();
     motion_update();
 
-    /* 声控检测：规定模式用于起停控制，DEBUG 模式用于 MIC 调试页触发计数 */
-    if (ui_get_mode() == UI_MODE_RULE || ui_debug_is_active())
+    /* 声控检测：DEBUG 模式任意拍手切换启停 */
+    if (ui_debug_is_active())
     {
         u8 tap = mic_scan();
         if (tap != 0)
         {
             ui_debug_mic_on_trigger(tap);
 
-            if (ui_get_mode() == UI_MODE_RULE)
+            if (fsm_get_state() == FSM_STATE_IDLE || fsm_get_state() == FSM_STATE_FINISHED)
             {
-                if (tap == 1 && (fsm_get_state() == FSM_STATE_IDLE ||
-                                 fsm_get_state() == FSM_STATE_FINISHED))
-                {
-                    fsm_start();
-                }
-                else if (tap == 2 && (fsm_get_state() != FSM_STATE_IDLE &&
-                                      fsm_get_state() != FSM_STATE_FINISHED))
-                {
-                    motion_brake();
-                    fsm_reset();
-                }
+                fsm_start();
+            }
+            else
+            {
+                motion_brake();
+                fsm_reset();
             }
         }
     }

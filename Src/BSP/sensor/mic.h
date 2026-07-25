@@ -8,7 +8,7 @@
  * VREF=3.3V, 12bit ADC: 2.2V ≈ 2730
  * 实测：没声音 2.3~2.5V(2854~3102)，有声音时电压降低。
  * 阈值设 2.2V，确保低于没声音下限 2.3V，高于有声音电压。 */
-#define MIC_ADC_THRESHOLD       2730
+#define MIC_ADC_THRESHOLD       2800
 
 /* 初始化咪头检测接口（PB0 ADC1_CH8 模拟输入） */
 void mic_init(void);
