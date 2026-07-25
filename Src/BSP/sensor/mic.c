@@ -90,6 +90,8 @@ static u16 mic_adc_read_ch(u8 ch)
 
 u16 mic_get_raw(void)
 {
+    mic_adc_ensure_ready();
+    s_last_adc = mic_adc_read_ch(BSP_MIC_ADC_CH);
     return s_last_adc;
 }
 
