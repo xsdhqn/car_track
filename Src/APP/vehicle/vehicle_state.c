@@ -14,12 +14,14 @@
 
 /* 静态变量 */
 static u32 s_distance_cm = 0;
+static u32 s_distance_acc = 0;  /* 余数累积器：单位与 dist_inc_x100 相同 (mm×100)，进位后保留 */
 static u16 s_speed_cm_s = 0;
-static u16 s_speed_raw = 0;       /* 滤波前的原始速度，调试用（暂存） */
+static u16 s_speed_raw = 0;            /* 滤波前的原始速度，调试用（暂存） */
 
 void vehicle_init(void)
 {
     s_distance_cm = 0;
+    s_distance_acc = 0;
     s_speed_cm_s = 0;
     s_speed_raw  = 0;
     encoder_read();  /* 清空编码器初始化期间可能积累的噪声脉冲 */
@@ -38,11 +40,15 @@ void vehicle_update(void)
         pulses = 0;
     }
 
-    /* 距离增量：mm * 100 */
+    /* 距离增量：mm * 100 / pulse
+     * dist_inc_x100 单位是 mm×100 (即 0.01mm)
+     * 1 cm = 10 mm = 1000 × 0.01mm，所以除以 1000 得到 cm */
     dist_inc_x100 = (u32)pulses * VEHICLE_DIST_PER_PULSE_X100;
 
-    /* 累计里程（cm）：dist_inc_x100 单位是 mm*100，需 /1000 得到 cm */
-    s_distance_cm += dist_inc_x100 / 1000;
+    /* 用同单位累加器避免每次整除丢余数：满 1000 进位 1cm，余数保留 */
+    s_distance_acc += dist_inc_x100;
+    s_distance_cm += s_distance_acc / 1000;   /* 0.01mm → cm: /1000 */
+    s_distance_acc %= 1000;                   /* 保留不足 1cm 的尾数 */
 
     /* 速度(cm/s) = pulses * dist_per_pulse_x100 / sample_ms */
     s_speed_raw = (u16)((u32)pulses * VEHICLE_DIST_PER_PULSE_X100 / VEHICLE_SAMPLE_MS);
@@ -73,4 +79,5 @@ u32 vehicle_get_distance_cm(void)
 void vehicle_reset_distance(void)
 {
     s_distance_cm = 0;
+    s_distance_acc = 0;
 }

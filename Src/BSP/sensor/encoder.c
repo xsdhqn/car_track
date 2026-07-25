@@ -142,7 +142,9 @@ int encoder_read(void)
     filtered_val = ENC_LPF_ALPHA * (float)raw_val + (1.0f - ENC_LPF_ALPHA) * enc_lpf_prev;
     enc_lpf_prev = filtered_val;
 
-    return (int)filtered_val;
+    /* 四舍五入（而非截断）：避免每次调用系统性丢失 ~0.5 脉冲，
+     * 误差通过 IIR 状态变量 enc_lpf_prev 在后续周期自动补偿。 */
+    return (int)(filtered_val + 0.5f);
 }
 
 void encoder_get_counts(s32 *left, s32 *right)
